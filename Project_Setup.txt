@@ -1,0 +1,25 @@
+1. Create database on pgAdmin : event_flow
+
+2. DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/event_flow"
+			"postgresql://<USERNAME>:<PASSWORD>@localhost:5432/event_flow?schema=public"
+
+6. Install all the external modules : npm install
+
+3. Commands to setup DB/Prisma : 
+		i) npx prisma generate
+		ii) npx prisma migrate deploy 
+		iii) npx prisma studio
+		
+		*** If Migration folder is missing :
+		i) npx prisma migrate dev --name <name>
+		ii) npx prisma generate
+		iii) npx prisma studio
+		
+4.Some basic Query :
+		i)SELECT * FROM "Club" ;
+		ii)SELECT * FROM "Event" ;
+		
+5. Change the cloudinary account credentials.(cloudinary.utils.js -> .env)
+
+6. Run the server : npm start
+		
