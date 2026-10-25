@@ -1,0 +1,3 @@
+1. Change the username and password from SMTP details.(email.utils.js -> .env)
+2. Change the cloudinary account credentials.(cloudinary.utils.js -> .env)
+3. Change the DATABASE_URL.(.env)

@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  STUDENT
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+  COMPLETED
+}
+
+enum RegistrationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  INITIATED
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  BKASH
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  studentId    String?  @unique
+  department   String?
+  email        String   @unique
+  phone        String?
+  password     String
+  role         UserRole @default(STUDENT)
+
+  clubId       String?
+  club         Club?    @relation("ClubAdmins", fields: [clubId], references: [id])
+
+  registrations Registration[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([role])
+  @@index([clubId])
+}
+
+model Club {
+  id          String  @id 
+  name        String
+  description String?
+  profileImage String?
+
+  admins      User[]  @relation("ClubAdmins")
+  events      Event[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name])
+}
+
+model Event {
+  id                 String      @id @default(cuid())
+  title              String
+  description        String?
+  date               DateTime
+  time               String
+  venue              String
+  registrationFee    Decimal     @db.Decimal(10, 2)
+  bannerImage        String?
+  registrationDeadline DateTime
+  capacity           Int
+  status             EventStatus @default(DRAFT)
+
+  clubId             String
+  club               Club        @relation(fields: [clubId], references: [id], onDelete: Cascade)
+
+  registrations      Registration[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clubId])
+  @@index([date])
+  @@index([status])
+}
+
+model Registration {
+  id        String @id @default(cuid())
+
+  userId    String
+  eventId   String
+
+  user      User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event     Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  status    RegistrationStatus @default(PENDING)
+
+  ticketId  String? @unique
+  qrCode    String?
+
+  payment   Payment?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, eventId])
+  @@index([eventId])
+  @@index([userId])
+}
+
+model Payment {
+  id             String @id @default(cuid())
+
+  registrationId String @unique
+  registration   Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  amount         Decimal @db.Decimal(10, 2)
+  method         PaymentMethod @default(BKASH)
+  status         PaymentStatus @default(INITIATED)
+
+  transactionId  String? @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+}
+
+
+
+
+
+
+
+// ====== NOTE ============= 
+
+/*
+
+Migration : first,
+
+npx prisma migrate dev --name <new name>
+
+*/ 
+
